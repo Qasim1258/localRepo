@@ -1,0 +1,804 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Challan System</title>
+  <style>
+    :root {
+      --bg: #070b16;
+      --card: rgba(255,255,255,0.08);
+      --card-border: rgba(255,255,255,0.18);
+      --text: #eef2ff;
+      --muted: #b8c0da;
+      --accent1: #7c3aed;
+      --accent2: #38bdf8;
+      --accent3: #f97316;
+      --accent4: #22c55e;
+      --shadow: 0 24px 68px rgba(0,10,30,0.4);
+      --bg-soft: rgba(15,23,42,0.92);
+      --bg-soft-alt: rgba(255,255,255,0.92);
+      --card-text: #eef2ff;
+      --card-text-alt: #0f172a;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, rgba(124,58,237,0.3), transparent 25%),
+                  radial-gradient(circle at bottom right, rgba(14,165,233,0.15), transparent 22%),
+                  linear-gradient(135deg, #08101f 0%, #0e1b33 45%, #111b2f 100%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .page {
+      width: 100%;
+      max-width: 980px;
+      animation: fadeIn 0.9s ease both;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+      padding: 18px 24px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+      backdrop-filter: blur(18px);
+    }
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .brand .logo {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+    .brand small {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .menu {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+    .menu a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+    .menu a:hover {
+      color: var(--accent2);
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .icon-button {
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.25s ease, border-color 0.25s ease;
+      font-weight: 700;
+    }
+    .icon-button:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.14);
+    }
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 3vw, 3.5rem);
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+      max-width: 620px;
+      animation: slideInLeft 0.8s ease both;
+    }
+    .hero p {
+      max-width: 460px;
+      color: var(--muted);
+      animation: slideInRight 0.8s ease 0.15s both;
+      line-height: 1.7;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.75) 100%);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 28px;
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      padding: 32px;
+      overflow: hidden;
+      position: relative;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -110px;
+      right: -120px;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(124,58,237,0.35), transparent 62%);
+      filter: blur(24px);
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      left: -140px;
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(14,165,233,0.2), transparent 60%);
+      filter: blur(22px);
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      position: relative;
+      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(15,23,42,0.92));
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 26px;
+      padding: 26px 24px 22px;
+      backdrop-filter: blur(18px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+      overflow: hidden;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3), var(--accent4));
+      border-radius: 0 0 16px 16px;
+    }
+    .stat-card .stat-label {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      letter-spacing: 0.02em;
+    }
+    .stat-card strong {
+      display: block;
+      font-size: 2rem;
+      line-height: 1.05;
+      color: #f8fafc;
+    }
+    .history-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .history-head h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+    .history-list {
+      display: grid;
+      gap: 14px;
+    }
+    .history-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 18px 20px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    .history-item strong {
+      font-size: 1rem;
+      color: #fff;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .history-details {
+      display: grid;
+      gap: 6px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .history-empty {
+      color: var(--muted);
+      padding: 20px;
+      text-align: center;
+      border: 1px dashed rgba(255,255,255,0.16);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+    }
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+    }
+    .status-chip.pending {
+      background: linear-gradient(135deg, rgba(249,115,22,0.18), rgba(251,146,60,0.12));
+      color: #fbbf24;
+      border-color: rgba(249,115,22,0.28);
+    }
+    .status-chip.paid {
+      background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(34,211,238,0.12));
+      color: #a7f3d0;
+      border-color: rgba(34,197,94,0.28);
+    }
+    .status-chip.overdue {
+      background: linear-gradient(135deg, rgba(239,68,68,0.18), rgba(245,158,11,0.12));
+      color: #fecaca;
+      border-color: rgba(239,68,68,0.28);
+    }
+    .form-grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .form-grid .full {
+      grid-column: 1 / -1;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--text);
+      font-weight: 600;
+    }
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-size: 0.98rem;
+      background: rgba(15,23,42,0.92);
+      color: var(--text);
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(124,58,237,0.9);
+      box-shadow: 0 0 0 6px rgba(124,58,237,0.12);
+      transform: translateY(-1px);
+      background: rgba(15,23,42,0.98);
+    }
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(255,255,255,0.55);
+    }
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .feature-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .feature-pill {
+      padding: 16px 18px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: var(--text);
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+    body.light-mode {
+      color: #0f172a;
+      background: linear-gradient(135deg, #eff6ff 0%, #e2e8f0 45%, #f8fafc 100%);
+    }
+    body.light-mode .card,
+    body.light-mode .history-card,
+    body.light-mode .stat-card,
+    body.light-mode .topbar {
+      background: rgba(255,255,255,0.92);
+      color: #0f172a;
+      border-color: rgba(15,23,42,0.12);
+      box-shadow: 0 20px 40px rgba(15,23,42,0.08);
+    }
+    body.light-mode .card::before,
+    body.light-mode .card::after {
+      display: none;
+    }
+    body.light-mode .badge,
+    body.light-mode .feature-pill,
+    body.light-mode .icon-button {
+      background: rgba(15,23,42,0.04);
+      color: #0f172a;
+      border-color: rgba(15,23,42,0.12);
+    }
+    body.light-mode input,
+    body.light-mode select,
+    body.light-mode textarea {
+      background: #fff;
+      color: #0f172a;
+      border-color: rgba(15,23,42,0.12);
+    }
+    body.light-mode .menu a,
+    body.light-mode .brand .logo {
+      color: #0f172a;
+    }
+    body.alt-bg {
+      background: radial-gradient(circle at top left, rgba(16,185,129,0.28), transparent 28%),
+                  radial-gradient(circle at bottom right, rgba(59,130,246,0.18), transparent 25%),
+                  linear-gradient(135deg, #041c2c 0%, #08263f 45%, #0f3a5a 100%);
+    }
+    body.alt-bg.light-mode {
+      background: radial-gradient(circle at top left, rgba(34,197,94,0.15), transparent 28%),
+                  radial-gradient(circle at bottom right, rgba(59,130,246,0.14), transparent 25%),
+                  linear-gradient(135deg, #eff6ff 0%, #dbeafe 45%, #f8fafc 100%);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text);
+      font-size: 0.95rem;
+      animation: floatBadge 3s ease-in-out infinite alternate;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+    }
+    .badge:nth-child(1) {
+      background: linear-gradient(135deg, rgba(124,58,237,0.24), rgba(56,189,248,0.16));
+    }
+    .badge:nth-child(2) {
+      background: linear-gradient(135deg, rgba(236,72,153,0.22), rgba(245,158,11,0.16));
+    }
+    .badge.due,
+    .badge:nth-child(3) {
+      background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(16,185,129,0.16));
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 14px;
+      align-items: center;
+      margin-top: 16px;
+    }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      border-radius: 16px;
+      padding: 14px 22px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+      color: #fff;
+    }
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 30px rgba(124,58,237,0.24);
+    }
+    .submit {
+      background: linear-gradient(135deg, #7c3aed, #38bdf8);
+      box-shadow: 0 12px 30px rgba(124,58,237,0.28);
+    }
+    .reset {
+      background: rgba(255,255,255,0.08);
+      color: #dbeafe;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .note {
+      color: var(--muted);
+      margin-top: 10px;
+      grid-column: 1 / -1;
+      font-size: 0.96rem;
+    }
+    .success-message {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      background: linear-gradient(135deg, rgba(34,197,94,0.96), rgba(34,197,94,0.82));
+      color: white;
+      padding: 18px 22px;
+      border-radius: 20px;
+      box-shadow: 0 18px 45px rgba(15,23,42,0.32);
+      opacity: 0;
+      transform: translateY(24px);
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .success-message.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes floatBadge {
+      from { transform: translateY(0); }
+      to { transform: translateY(-6px); }
+    }
+    @media (max-width: 960px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+    @media (max-width: 720px) {
+      body {
+        padding: 18px;
+      }
+      .page {
+        padding: 0;
+      }
+      .hero h1 {
+        font-size: clamp(2rem, 5vw, 2.8rem);
+      }
+      .history-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .history-item {
+        grid-template-columns: 1fr;
+      }
+      .actions {
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: stretch;
+      }
+      .actions .button {
+        width: 100%;
+      }
+      .badge-row {
+        justify-content: flex-start;
+      }
+      .card {
+        padding: 28px 24px;
+      }
+    }
+    @media (max-width: 520px) {
+      .hero,
+      .history-head,
+      .form-grid,
+      .dashboard {
+        gap: 16px;
+      }
+      .page {
+        max-width: 100%;
+      }
+      .badge {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="topbar">
+      <div class="brand">
+        <span class="logo">E-Challan</span>
+        <small>PKR Traffic Control</small>
+      </div>
+      <nav class="menu">
+        <a href="#dashboard">Dashboard</a>
+        <a href="#recent">History</a>
+        <a href="#form-section">Issue</a>
+        <a href="#features">Features</a>
+      </nav>
+      <div class="toolbar">
+        <button id="themeToggle" class="icon-button" type="button">Light Mode</button>
+        <button id="bgToggle" class="icon-button" type="button">Background</button>
+      </div>
+    </section>
+
+    <section class="hero">
+      <div>
+        <h1>Animated E-Challan System</h1>
+        <p>Issue and manage traffic challans with a vibrant dashboard. This page includes form interaction, challan history, and local browser storage for a more complete system feel.</p>
+      </div>
+      <div class="badge-row">
+        <span class="badge">Live tracking</span>
+        <span class="badge">Violation history</span>
+        <span class="badge due">PKR ready</span>
+      </div>
+    </section>
+
+    <section id="features" class="feature-panel">
+      <div class="feature-pill">Issue challans quickly</div>
+      <div class="feature-pill">Searchable challan history</div>
+      <div class="feature-pill">Payment status at a glance</div>
+      <div class="feature-pill">Theme and background controls</div>
+    </section>
+
+    <section class="card" id="dashboard">
+      <div class="dashboard">
+        <div class="stat-card">
+          <span class="stat-label">Total Challans Issued</span>
+          <strong id="totalChallans">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total Fine Collected</span>
+          <strong id="totalFine">PKR0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Payment Pending</span>
+          <strong id="pendingCount">0</strong>
+        </div>
+      </div>
+
+      <div class="history-card" id="recent">
+        <div class="history-head">
+          <h2>Recent Challans</h2>
+          <span class="status-chip">Live tracking</span>
+        </div>
+        <div id="historyList" class="history-list">
+          <div class="history-empty">No challans issued yet. Fill the form to start your e-challan workflow.</div>
+        </div>
+      </div>
+
+      <form id="challan-form" class="form-section" name="form-section">
+        <div class="form-grid">
+          <div>
+            <label for="challanNumber">Challan Number *</label>
+            <input type="text" id="challanNumber" name="challanNumber" placeholder="CHL-2026-0123" required>
+          </div>
+          <div>
+            <label for="issueDate">Issue Date *</label>
+            <input type="date" id="issueDate" name="issueDate" required>
+          </div>
+          <div>
+            <label for="vehicleOwner">Vehicle Owner Name *</label>
+            <input type="text" id="vehicleOwner" name="vehicleOwner" placeholder="Sara Ahmed" required>
+          </div>
+          <div>
+            <label for="vehicleNumber">Vehicle Registration No. *</label>
+            <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="ABC-1234" required>
+          </div>
+          <div>
+            <label for="licenseNo">Driver License / ID</label>
+            <input type="text" id="licenseNo" name="licenseNo" placeholder="DL-10-2026-012345">
+          </div>
+          <div>
+            <label for="vehicleType">Vehicle Type</label>
+            <select id="vehicleType" name="vehicleType">
+              <option value="">Select vehicle type</option>
+              <option value="car">Car</option>
+              <option value="motorcycle">Motorcycle</option>
+              <option value="truck">Truck</option>
+              <option value="bus">Bus</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label for="violationType">Violation Type *</label>
+            <select id="violationType" name="violationType" required>
+              <option value="">Select violation</option>
+              <option value="speeding">Speeding</option>
+              <option value="signal">Jumped red signal</option>
+              <option value="parking">Illegal parking</option>
+              <option value="license">No valid license</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label for="fineAmount">Fine Amount *</label>
+            <input type="number" id="fineAmount" name="fineAmount" min="0" placeholder="5000" required>
+          </div>
+          <div>
+            <label for="dueDate">Due Date *</label>
+            <input type="date" id="dueDate" name="dueDate" required>
+          </div>
+          <div>
+            <label for="location">Violation Location</label>
+            <input type="text" id="location" name="location" placeholder="Main Street / Highway 22">
+          </div>
+          <div>
+            <label for="status">Payment Status *</label>
+            <select id="status" name="status" required>
+              <option value="">Select status</option>
+              <option value="pending">Pending</option>
+              <option value="paid">Paid</option>
+              <option value="overdue">Overdue</option>
+            </select>
+          </div>
+          <div class="full">
+            <label for="officerName">Issuing Officer</label>
+            <input type="text" id="officerName" name="officerName" placeholder="Officer Ali Khan">
+          </div>
+          <div class="full">
+            <label for="comments">Comments / Violation Notes</label>
+            <textarea id="comments" name="comments" placeholder="Describe the violation or additional details..."></textarea>
+          </div>
+          <p class="note full">Required fields are marked with *. Challans are stored locally and displayed in the recent challans list.</p>
+        </div>
+
+        <div class="actions">
+          <button type="reset" class="button reset">Reset</button>
+          <button type="submit" class="button submit">Issue E-Challan</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <div class="success-message" id="successMessage">E-Challan issued successfully!</div>
+
+  <script>
+    const STORAGE_KEY = 'echallan_records';
+    const form = document.getElementById('challan-form');
+    const message = document.getElementById('successMessage');
+    const historyList = document.getElementById('historyList');
+    const totalChallans = document.getElementById('totalChallans');
+    const totalFine = document.getElementById('totalFine');
+    const pendingCount = document.getElementById('pendingCount');
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('en-PK', { style: 'currency', currency: 'PKR', maximumFractionDigits: 0 }).format(value || 0);
+    }
+
+    function getStoredChallans() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    }
+
+    function saveChallans(challans) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(challans));
+    }
+
+    function renderStats(challans) {
+      const total = challans.length;
+      const fineTotal = challans.reduce((sum, item) => sum + Number(item.fineAmount || 0), 0);
+      const pending = challans.filter(item => item.status === 'pending').length;
+      totalChallans.textContent = total;
+      totalFine.textContent = formatCurrency(fineTotal);
+      pendingCount.textContent = pending;
+    }
+
+    function getStatusClass(status) {
+      if (status === 'paid') return 'paid';
+      if (status === 'overdue') return 'overdue';
+      return 'pending';
+    }
+
+    function renderHistory(challans) {
+      if (challans.length === 0) {
+        historyList.innerHTML = '<div class="history-empty">No challans issued yet. Fill the form to start your e-challan workflow.</div>';
+        return;
+      }
+      const latest = challans.slice(-4).reverse();
+      historyList.innerHTML = latest.map(item => `
+        <div class="history-item">
+          <div class="history-details">
+            <strong>${item.challanNumber} — ${item.vehicleNumber}</strong>
+            <span>${item.vehicleOwner} • ${item.violationType.replace(/^[a-z]/, c => c.toUpperCase())}</span>
+            <span>${item.location || 'Location not specified'} • ${item.issueDate}</span>
+          </div>
+          <div>
+            <span class="status-chip ${getStatusClass(item.status)}">${item.status.toUpperCase()}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function refreshDashboard() {
+      const challans = getStoredChallans();
+      renderStats(challans);
+      renderHistory(challans);
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.id = `CHL-${Date.now()}`;
+      data.createdAt = new Date().toISOString();
+
+      const challans = getStoredChallans();
+      challans.push(data);
+      saveChallans(challans);
+      refreshDashboard();
+
+      message.classList.add('show');
+      setTimeout(() => message.classList.remove('show'), 3200);
+      form.reset();
+    });
+
+    function loadThemeSettings() {
+      const theme = localStorage.getItem('echallan_theme');
+      const bgMode = localStorage.getItem('echallan_bg_mode');
+      if (theme === 'light') document.body.classList.add('light-mode');
+      if (bgMode === 'alt') document.body.classList.add('alt-bg');
+      themeToggle.textContent = document.body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+    }
+
+    const themeToggle = document.getElementById('themeToggle');
+    const bgToggle = document.getElementById('bgToggle');
+
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      localStorage.setItem('echallan_theme', isLight ? 'light' : 'dark');
+      themeToggle.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+    });
+
+    bgToggle.addEventListener('click', () => {
+      document.body.classList.toggle('alt-bg');
+      const isAlt = document.body.classList.contains('alt-bg');
+      localStorage.setItem('echallan_bg_mode', isAlt ? 'alt' : 'default');
+    });
+
+    loadThemeSettings();
+    refreshDashboard();
+  </script>
+</body>
+</html>
